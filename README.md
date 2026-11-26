@@ -12,7 +12,7 @@ The centerpiece is **“What could change this conclusion?”** Change load real
 
 **Start with a thesis. Challenge its assumptions. Inspect the evidence. Record a human decision.** The fictional Bluebonnet base case shows $6.83m NPV and 12.3% IRR; the slower-build-out preset falls to −$5.14m NPV and 8.5% IRR.
 
-[Explore the five-screen visual walkthrough](docs/visual-walkthrough.md) for the assumption controls, scenario comparison, evidence room and review surface.
+[Explore the visual walkthrough](docs/visual-walkthrough.md) for the assumption controls, scenario comparison, evidence room and review surface. The [E01 source-to-claim example](docs/visual-walkthrough.md#follow-e01-from-primary-source-to-bounded-claim) pairs the ERCOT notice with the in-product evidence inspection.
 
 *Screenshots from the working demo. Project economics are synthetic, research roles are scripted, and review records are browser-local.*
 
