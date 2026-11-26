@@ -1,0 +1,13 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {ASSETS,baseline,calculate,npv,irr,thresholdPrice,validate} from '../web/model.mjs';
+import {append,verify,snapshot,validReview,sha,canonical} from '../web/audit.mjs';
+const asset=ASSETS[0],base=baseline(asset);const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
+test('NPV and IRR match an independent one-year example',()=>{close(npv(100,[110]),0);close(irr(100,[110]),.1);});
+test('charging purchases include round-trip losses',()=>{const r=calculate(asset,base);close(r.flows[0],200*365*.93*(180-35/.86)/1e6+1.2-1.6);});
+test('slower realization and delay reverse the screen',()=>{assert.equal(calculate(asset,base).pass,true);assert.equal(calculate(asset,{...base,realization:35,delay:12}).pass,false);});
+test('delay discounts cash flows while capex is paid today',()=>{const a=calculate(asset,base),b=calculate(asset,{...base,delay:12});close(b.npv,(a.npv+base.capex)/1.1-base.capex);assert.ok(b.irr<a.irr);});
+test('incremental capex reduces NPV dollar for dollar',()=>close(calculate(asset,{...base,capex:60}).npv,calculate(asset,base).npv-5));
+test('degradation reduces later operating cash',()=>{const r=calculate(asset,base);assert.ok(r.flows[14]<r.flows[0]);});
+test('reported price threshold straddles the decision boundary',()=>{const p=thresholdPrice(asset,base);assert.equal(calculate(asset,{...base,price:p-.01}).pass,false);assert.equal(calculate(asset,{...base,price:p+.01}).pass,true);});
+test('invalid assumptions fail closed',()=>{for(const x of [NaN,Infinity,-1,{},'60'])assert.throws(()=>validate({...base,realization:x}));});
+test('audit edits and interior deletions fail verification; changed snapshots invalidate review',async()=>{let log=await append([],'opened',{asset:asset.id});log=await append(log,'reviewed',{status:'revision'});assert.equal(await verify(log),true);const changed=structuredClone(log);changed[0].data.asset='other';assert.equal(await verify(changed),false);assert.equal(await verify(log.slice(1)),false);const s=snapshot(asset.id,base,{E01:'hash'},'0.1.0'),review={snapshot:await sha(canonical(s))};assert.equal(await validReview(review,s),true);assert.equal(await validReview(review,{...s,assumptions:{...base,delay:12}}),false);});
