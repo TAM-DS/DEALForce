@@ -1,0 +1,14 @@
+export const VERSION = '0.1.0';
+export const ASSETS = [
+ {id:'bluebonnet',name:'Project Bluebonnet',zone:'ERCOT North',mw:100,mwh:200,capex:55,price:180,charge:35,ancillary:1.2,opex:1.6},
+ {id:'mesa',name:'Project Mesa',zone:'ERCOT West',mw:100,mwh:200,capex:59,price:170,charge:28,ancillary:1.2,opex:1.6},
+ {id:'coastal',name:'Project Coastal',zone:'ERCOT South',mw:100,mwh:200,capex:60,price:165,charge:32,ancillary:1.2,opex:1.6}
+];
+export const LIMITS = {realization:[10,100],price:[90,250],capex:[35,90],delay:[0,24]};
+export const baseline = asset => ({realization:60,price:asset.price,capex:asset.capex,delay:0});
+export function validate(a){for(const [k,[lo,hi]] of Object.entries(LIMITS)){if(typeof a?.[k]!=='number'||!Number.isFinite(a[k])||a[k]<lo||a[k]>hi)throw new Error(`Invalid ${k}`);}return a;}
+export const npv=(capex,flows,rate=.1,delay=0)=>-capex+flows.reduce((s,c,i)=>s+c/(1+rate)**(i+1+delay/12),0);
+export function irr(capex,flows,delay=0){if(capex<=0||flows.some(c=>c<0)||!flows.some(c=>c>0))return null;let lo=-.95,hi=10;if(npv(capex,flows,lo,delay)*npv(capex,flows,hi,delay)>0)return null;for(let i=0;i<100;i++){const mid=(lo+hi)/2;if(npv(capex,flows,mid,delay)>0)lo=mid;else hi=mid;}return (lo+hi)/2;}
+export function calculate(asset,a){validate(a);const effectivePrice=a.price+(a.realization-60)*.6;const discharged=asset.mwh*365*.93;const flows=Array.from({length:15},(_,i)=>discharged*.98**i*(effectivePrice-asset.charge/.86)/1e6+asset.ancillary-asset.opex);const value=npv(a.capex,flows,.1,a.delay),rate=irr(a.capex,flows,a.delay);let cumulative=-a.capex,payback=null;const points=[{year:0,cash:cumulative}];flows.forEach((cash,i)=>{if(payback===null&&cumulative<0&&cumulative+cash>=0)payback=i+a.delay/12-cumulative/cash;cumulative+=cash;points.push({year:i+1+a.delay/12,cash:cumulative});});const pass=value>=0&&rate!==null&&rate>=.12;return {npv:value,irr:rate,flows,points,effectivePrice,discharged,payback,pass,conclusion:pass?'Advance to diligence':'Rework the thesis'};}
+export function thresholdPrice(asset,a){let lo=90,hi=250;if(!calculate(asset,{...a,price:hi}).pass)return null;if(calculate(asset,{...a,price:lo}).pass)return lo;for(let i=0;i<50;i++){const mid=(lo+hi)/2;if(calculate(asset,{...a,price:mid}).pass)hi=mid;else lo=mid;}return hi;}
+export const presets=asset=>[{id:'base',name:'Base case',description:'The original underwriting assumptions.',a:baseline(asset)},{id:'downside',name:'Slower build-out',description:'35% load realization and a 12-month operating delay.',a:{...baseline(asset),realization:35,delay:12}},{id:'cost',name:'Cost pressure',description:'Construction costs increase by $12 million.',a:{...baseline(asset),capex:asset.capex+12}},{id:'upside',name:'Stronger capture',description:'Discharge price increases by $20/MWh.',a:{...baseline(asset),price:asset.price+20}}];
