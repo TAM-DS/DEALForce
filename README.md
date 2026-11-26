@@ -6,6 +6,16 @@ An ERCOT research workspace for examining an investment thesis, challenging its 
 
 The centerpiece is **“What could change this conclusion?”** Change load realization, discharge price, construction cost, or operating delay; deterministic calculations update the brief and invalidate any earlier sign-off.
 
+## See the workflow
+
+![DEALForce research workspace showing Bluebonnet’s base-case metrics, investment thesis, evidence records and pending human review](docs/images/research-workspace.png)
+
+**Start with a thesis. Challenge its assumptions. Inspect the evidence. Record a human decision.** The fictional Bluebonnet base case shows $6.83m NPV and 12.3% IRR; the slower-build-out preset falls to −$5.14m NPV and 8.5% IRR.
+
+[Explore the five-screen visual walkthrough](docs/visual-walkthrough.md) for the assumption controls, scenario comparison, evidence room and review surface.
+
+*Screenshots from the working demo. Project economics are synthetic, research roles are scripted, and review records are browser-local.*
+
 ## Run locally
 
 Requires Node.js 20+ and Python 3. No npm packages or API keys are required.
