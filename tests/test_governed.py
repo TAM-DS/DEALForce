@@ -104,7 +104,43 @@ class ReleaseTests(unittest.TestCase):
         r = self.request()
         self.approve(r)
         self.s.policy_path.write_text(self.s.policy_path.read_text().replace('timeout = "5m"', 'timeout = "6m"'))
-        self.assertEqual(self.s.execute({'release_id': r['id']})['requests'][0]['status'], 'stale')
+        self.assertEqual(self.s.execute({'release_id': r['id']})['requests'][0]['status'], 'denied')
+
+    def test_requests_stay_in_revision_order_after_reload(self):
+        import uuid
+        with patch('governed.service.uuid.uuid4', side_effect=[uuid.UUID('f'*32), uuid.UUID('1'*32), uuid.UUID('0'*32), uuid.UUID('2'*32)]):
+            self.request()
+            self.revise(price=181)
+            latest = self.request()
+        self.assertEqual(latest['id'], '0'*32)
+        reloaded = ReleaseService(self.home).state()['requests']
+        self.assertEqual([r['revision'] for r in reloaded], [2, 1])
+
+    def test_expired_grant_cannot_use_still_signed_approval(self):
+        import time
+        r = self.request()
+        self.approve(r)
+        with patch('jackline.grants.now', return_value=time.time()+901):
+            result = self.s.execute({'release_id': r['id']})
+        self.assertEqual(result['requests'][0]['status'], 'denied')
+        self.assertIn('expired', result['requests'][0]['message'])
+        with self.assertRaises(BoundaryError):
+            self.s.download(r['id'])
+
+    def test_changed_implementation_creates_new_revision_on_restart(self):
+        r = self.request()
+        self.approve(r)
+        with patch('governed.service.fingerprint', return_value='f'*64):
+            newer = ReleaseService(self.home)
+            self.assertGreater(newer.state()['current']['snapshot']['revision'], r['revision'])
+            with self.assertRaisesRegex(BoundaryError, 'STALE'):
+                newer.execute({'release_id': r['id']})
+
+    def test_concurrent_release_requests_share_one_call(self):
+        with ThreadPoolExecutor(2) as pool:
+            requests = list(pool.map(lambda _: self.request(), range(2)))
+        self.assertEqual(requests[0]['id'], requests[1]['id'])
+        self.assertEqual(len(self.s.state()['requests']), 1)
 
     def test_allow_policy_does_not_bypass_required_signature(self):
         self.s.policy_path.write_text(self.s.policy_path.read_text().replace('effect = "approve"', 'effect = "allow"'))

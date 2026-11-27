@@ -149,7 +149,7 @@ class ReleaseService:
     def _view(self, rt):
         c = self._state['current']
         requests = []
-        for r in reversed(list(self._state['requests'].values())):
+        for r in sorted(self._state['requests'].values(), key=lambda item: item['revision'], reverse=True):
             v = {k: r.get(k) for k in ['id', 'revision', 'snapshot_id', 'artifact_sha256', 'approval_id', 'status', 'message']}
             if r['snapshot_id'] != c['snapshot_id']:
                 v['status'] = 'stale'

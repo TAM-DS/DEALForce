@@ -56,6 +56,7 @@ Additional views include three fictional deal-screen fixtures, four reusable sce
 - Review snapshots bind the project, assumptions, evidence manifest, and model version. Changed assumptions invalidate review.
 - Named approve / reject / request-revision demonstration with required rationale.
 - Browser-local hash-linked audit events, Markdown brief export, and JSON audit export.
+- Optional local mode: 17 Python integration tests for signed releases and failure handling, plus a Chromium workflow check. CI tests Python 3.11 and 3.13.
 - Nine automated tests for model arithmetic, downside behavior, timing, costs, degradation, threshold boundaries, invalid inputs, audit modifications and review staleness. GitHub Actions runs tests and the static build.
 
 ## Honest demo boundaries
