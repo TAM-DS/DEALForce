@@ -1,0 +1,2 @@
+# Pin the reviewed integration contract; upgrades require integration tests.
+jackline[approvals] @ git+https://github.com/TAM-DS/jackline.git@855196ecc5598d9a2f644a05385f051b0e7df810
