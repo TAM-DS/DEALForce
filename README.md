@@ -28,6 +28,16 @@ npm start
 
 Open http://localhost:8000. Static hosting serves the generated `dist/` directory. Browser cryptography requires localhost or HTTPS. Google Fonts are optional; system fonts provide a fallback.
 
+## Optional Jackline-governed release
+
+**A signed approval applies to one exact brief. Change an assumption, and release is blocked until the new revision is reviewed.**
+
+The optional local Python service connects DEALForce to [Jackline](https://github.com/TAM-DS/jackline) for one protected action: release of a research document. It adds separate reviewer signatures, scoped expiring grants, server-owned revisions and persistent failure handling. The browser cannot sign or directly publish a release.
+
+[Run the governed workflow on Mac/Linux, inspect its trust boundary, and follow the failure demonstration →](docs/governed-release.md)
+
+The public static demo remains keyless and browser-local. The new service is an optional local mode; it is not deployed to the public demo.
+
 ## Three-minute demo
 
 1. Open Project Bluebonnet: a **fictional** 100 MW / 200 MWh battery. Its base-case NPV is approximately **$6.83m** and IRR **12.3%**.
@@ -46,6 +56,7 @@ Additional views include three fictional deal-screen fixtures, four reusable sce
 - Review snapshots bind the project, assumptions, evidence manifest, and model version. Changed assumptions invalidate review.
 - Named approve / reject / request-revision demonstration with required rationale.
 - Browser-local hash-linked audit events, Markdown brief export, and JSON audit export.
+- Optional local mode: 17 Python integration tests for signed releases and failure handling, plus a Chromium workflow check. CI tests Python 3.11 and 3.13.
 - Nine automated tests for model arithmetic, downside behavior, timing, costs, degradation, threshold boundaries, invalid inputs, audit modifications and review staleness. GitHub Actions runs tests and the static build.
 
 ## Honest demo boundaries
@@ -54,7 +65,7 @@ Additional views include three fictional deal-screen fixtures, four reusable sce
 
 All projects, project economics and load-realization scenarios are synthetic. The two ERCOT links provide market context; they do not establish the commercial assumptions. The evidence hashes bind authored local records, not the authenticity or archived content of external pages.
 
-Reviews and audit events are stored in this browser's local storage. Reviewer names are not authenticated. A local user can rewrite an entire hash chain, remove its tail, change the code, or clear storage. This is **not a production authorization boundary or tamper-proof audit system**. Production use needs server-enforced identity, snapshot authorization, immutable external audit anchoring, source ingestion and access controls. Jackline integration is future work; this app does not claim to use Jackline today.
+In static mode, reviews and audit events are stored in this browser's local storage. Reviewer names are not authenticated. A local user can rewrite an entire hash chain, remove its tail, change the code, or clear storage. This is **not a production authorization boundary or tamper-proof audit system**. Production use needs server-enforced identity, snapshot authorization, immutable external audit anchoring, source ingestion and access controls. These limitations describe static mode. The optional Jackline service adds a separate, server-enforced document-release workflow with key-verified decisions; its single-host trust boundary and remaining production requirements are documented in [governed release](docs/governed-release.md).
 
 ## Model contract
 
@@ -85,5 +96,9 @@ Primary context sources, reviewed November 25, 2026:
 - `web/app.mjs`: workspace interactions and exports.
 - `web/styles.css`: responsive visual design.
 - `tests/core.test.mjs`: arithmetic and state-integrity checks.
+- `governed/`: local backend, reviewer CLI and Jackline release adapter.
+- `web/release.mjs`: optional governed-release interface.
+- `tests/test_governed.py`: signed release, failure and HTTP boundary integration checks.
+- `tests/browser_smoke.py`: browser workflow and static-mode regression checks.
 
 Licensed under Apache 2.0. Research demonstration only; not an investment recommendation.
