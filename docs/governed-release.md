@@ -4,6 +4,8 @@ An approved brief can become obsolete as soon as an assumption changes. This int
 
 **Scope: one local document-release workflow.** Research roles remain scripted. Economics remain synthetic. No model, live research provider, email system, trading service or investment authority is connected.
 
+[See the local demonstration: pending signature, expired approval denied, and revised brief released](visual-walkthrough.md#govern-release-with-jackline).
+
 ## Start on a Mac or Linux workstation
 
 Requirements: Node.js 20+, Python 3.11+ and Git. Run these commands **inside your DEALForce checkout**, after pulling the merged change. Stop the static server first if port 8000 is occupied.

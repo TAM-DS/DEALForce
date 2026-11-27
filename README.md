@@ -36,6 +36,10 @@ The optional local Python service connects DEALForce to [Jackline](https://githu
 
 [Run the governed workflow on Mac/Linux, inspect its trust boundary, and follow the failure demonstration →](docs/governed-release.md)
 
+![Jackline releases reviewed revision 2 while the earlier revision 1 request is stale](docs/images/jackline-released-revision.png)
+
+**Observed on the local Mac demo:** pending signature → expired approval denied; revised brief released with the prior request marked stale. [See all three release-control screenshots and their precise scope](docs/visual-walkthrough.md#govern-release-with-jackline).
+
 The public static demo remains keyless and browser-local. The new service is an optional local mode; it is not deployed to the public demo.
 
 ## Three-minute demo
